@@ -15,7 +15,27 @@
       <% end %>
       <%= yield %>
       <%= render 'layouts/footer' %>
-      <%= debug(params) if Rails.env.development? %>
+      <% if Rails.env.development? %>
+        <%= debug(params) %>
+        <pre class="debug_dump">
+        fullpath: <%= request.fullpath %>
+        headers: <%= request.headers["Content-Type"] %>
+        media_type: <%= request.media_type %>
+        original_url: <%= request.original_url %>
+        original_fullpath: <%= request.original_fullpath %>
+        ip: <%= request.ip  %>
+        remote_ip: <%= request.remote_ip  %>
+        query_parameters: <%= request.query_parameters  %>
+        raw_post: <%= request.raw_post  %>
+        request_method: <%= request.request_method  %>
+        request_method_symbol: <%= request.request_method_symbol  %>
+        request_parameters: <%= request.request_parameters  %>
+        server_software: <%= request.server_software  %>
+        uuid: <%= request.uuid  %>
+        </pre>
+      <% end %>
+
     </div>
+
   </body>
 </html>

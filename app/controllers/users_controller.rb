@@ -1,7 +1,9 @@
 class UsersController < ApplicationController
   before_action :signed_in_user, only: [:index, :edit, :update, :destroy]
+  before_action :created_user, only: [:new, :create]
   before_action :correct_user, only: [:edit, :update]
   before_action :admin_user, only: :destroy
+  before_action :find_current_user, only: :destroy
   def index
     @users = User.paginate(page: params[:page])
   end
@@ -57,6 +59,12 @@ class UsersController < ApplicationController
         redirect_to signin_url, notice: "Please sign in."
       end
     end
+    
+    def created_user
+      if signed_in? 
+        redirect_to(root_path) if %w(new create).include?(action_name)
+      end
+    end
 
     def correct_user
       @user = User.find(params[:id])
@@ -65,5 +73,10 @@ class UsersController < ApplicationController
 
     def admin_user
       redirect_to(root_path) unless current_user.admin?
+    end
+
+    def find_current_user
+      @user = User.find(params[:id])
+      redirect_to(root_path) if current_user?(@user)
     end
 end

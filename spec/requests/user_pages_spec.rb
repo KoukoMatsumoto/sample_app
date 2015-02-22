@@ -38,14 +38,24 @@ describe "UserPages" do
           sign_in admin
           visit users_path
         end
-
-        it { should have_link('delete', href: user_path(User.first)) }
-        it "should be able to delete another user" do
-          expect do
-            click_link('delete', match: :first)
-          end.to change(User, :count).by(-1)
+        describe "non admin user deleted" do
+          it { should have_link('delete', href: user_path(User.first)) }
+          it "should be able to delete another user" do
+            expect do
+              click_link('delete', match: :first)
+            end.to change(User, :count).by(-1)
+          end
+          it { should_not have_link('delete', href: user_path(admin)) }
         end
-        it { should_not have_link('delete', href: user_path(admin)) }
+        describe "admin user not own deleted" do
+          let(:sub_admin) { FactoryGirl.create(:admin) }
+          it { should_not have_link('delete', href: user_path(sub_admin))}
+          it "not delete sub_admin user" do
+            expect do
+              delete user_path(sub_admin)
+            end.not_to change(User, :count).by(-1)
+          end
+        end
       end
     end
 
@@ -89,7 +99,7 @@ describe "UserPages" do
         fill_in "Name",    with: "Example User"
         fill_in "Email", with: "user@example.com"
         fill_in "Password", with: "foobar"
-        fill_in "Confirmation", with: "foobar"
+        fill_in "Confirm Password", with: "foobar"
       end
 
       it "should create a user" do
@@ -142,6 +152,18 @@ describe "UserPages" do
       it { should have_link('Sign out', href: signout_path) }
       specify { expect(user.reload.name).to eq new_name }
       specify { expect(user.reload.email).to eq new_email }
+    end
+
+    describe "forbidden attributes" do
+      let(:params) do
+        { user: { admin: true, password: user.password,
+              password_confirmation: user.password } }
+      end
+      before do
+        sign_in user, no_capybara: true
+        patch user_path(user), params
+      end
+      specify { expect(user.reload).not_to be_admin }
     end
   end
 end
