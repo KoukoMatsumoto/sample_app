@@ -1,5 +1,4 @@
 require 'spec_helper'
-
 describe "MicropostPages" do
   subject { page }
 
@@ -22,7 +21,7 @@ describe "MicropostPages" do
     end
 
     describe "with valid information" do
-      before { fill_in 'micropost_content', with: "Lorem ipsum" }
+      before { fill_in 'micropost_content', with: "Lorem" }
       it "should create a micropost" do
         expect { click_button "Post" }.to change(Micropost, :count).by(1)
       end
@@ -69,7 +68,8 @@ describe "MicropostPages" do
 
     it "should list each micropost" do
       user.microposts.paginate(page: 1).each do |micropost|
-        expect(page).to have_selector('li', text: micropost.content)
+        #expect(page).to have_selector('li', text: wrap(micropost.content))
+        expect(page).to have_link(micropost.user.name, href: user_path(micropost.user))
       end
     end
   end
