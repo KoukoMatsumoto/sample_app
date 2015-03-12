@@ -252,5 +252,15 @@ describe "UserPages" do
       it { should have_selector('h3', text: 'Followers') }
       it { should have_link(user.name, href: user_path(user)) }
     end
+
+    describe "follower/following counts" do
+      before do
+        sign_in user
+        visit followers_user_path(other_user)
+      end
+
+      it { should have_link("0 following", href: following_user_path(other_user)) }
+      it { should have_link("1 followers", href: followers_user_path(other_user)) }
+    end
   end
 end
